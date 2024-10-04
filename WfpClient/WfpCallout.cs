@@ -45,7 +45,7 @@ namespace Wfp
             FWPM_CALLOUT_SUBSCRIPTION0_ subscription = new FWPM_CALLOUT_SUBSCRIPTION0_
             {
                 enumTemplate = IntPtr.Zero, //enumTemplate,
-                sessionKey = session_key,
+                sessionKey = session_key != IntPtr.Zero ? Marshal.PtrToStructure<Guid>(session_key) : Guid.Empty,
                 flags = FirewallSubscriptionFlags.FWPM_SUBSCRIPTION_FLAG_NOTIFY_ON_DELETE | FirewallSubscriptionFlags.FWPM_SUBSCRIPTION_FLAG_NOTIFY_ON_ADD
             };
 
@@ -72,5 +72,9 @@ namespace Wfp
             Unsibscribe<FWPM_CALLOUT0_>(handleManager.calloutObj.subscription_changes);
         }
 
+        public IEnumerable<FWPM_SESSION0_> GetCalloutSubscribtions()
+        {
+            return GetSubscribtions<FWPM_CALLOUT0_>();
+        }
     }
 }

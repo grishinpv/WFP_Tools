@@ -651,102 +651,83 @@ namespace NativeAPI
             }
         }
 
-        [StructLayout(LayoutKind.Explicit)]
-        public struct Anonymous_99707a60_90d9_473c_951b_97fea591b664
-        {
-            /// UINT8->char
-            [FieldOffset(0)]
-            public byte uint8;
+        
 
-            /// UINT16->short
-            [FieldOffset(0)]
-            public short uint16;
-
-            /// UINT32->int
-            [FieldOffset(0)]
-            public int uint32;
-
-            /// UINT64*
-            [FieldOffset(0)]
-            public IntPtr uint64;
-
-            /// INT8->char
-            [FieldOffset(0)]
-            public byte int8;
-
-            /// INT16->short
-            [FieldOffset(0)]
-            public short int16;
-
-            /// INT32->int
-            [FieldOffset(0)]
-            public int int32;
-
-            /// INT64*
-            [FieldOffset(0)]
-            public IntPtr int64;
-
-            /// float
-            [FieldOffset(0)]
-            public float float32;
-
-            /// double*
-            [FieldOffset(0)]
-            public IntPtr double64;
-
-            /// FWP_BYTE_ARRAY16*
-            [FieldOffset(0)]
-            public IntPtr byteArray16;
-
-            /// FWP_BYTE_BLOB*
-            [FieldOffset(0)]
-            public IntPtr byteBlob;
-
-            /// SID*
-            [FieldOffset(0)]
-            public IntPtr sid;
-
-            /// FWP_BYTE_BLOB*
-            [FieldOffset(0)]
-            public IntPtr sd;
-
-            /// FWP_BYTE_BLOB*
-            [FieldOffset(0)]
-            public IntPtr tokenInformation;
-
-            /// FWP_BYTE_BLOB*
-            [FieldOffset(0)]
-            public IntPtr tokenAccessInformation;
-
-            /// LPWSTR->WCHAR*
-            [FieldOffset(0)]
-            public IntPtr unicodeString;
-
-            /// FWP_BYTE_ARRAY6*
-            [FieldOffset(0)]
-            public IntPtr byteArray6;
-
-            /// FWP_V4_ADDR_AND_MASK*
-            [FieldOffset(0)]
-            public IntPtr v4AddrMask;
-
-            /// FWP_V6_ADDR_AND_MASK*
-            [FieldOffset(0)]
-            public IntPtr v6AddrMask;
-
-            /// FWP_RANGE0*
-            [FieldOffset(0)]
-            public IntPtr rangeValue;
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
         public struct FWP_CONDITION_VALUE0_
         {
-            /// FWP_DATA_TYPE->FWP_DATA_TYPE_
             public FWP_DATA_TYPE_ type;
 
-            /// Anonymous_99707a60_90d9_473c_951b_97fea591b664
-            public Anonymous_99707a60_90d9_473c_951b_97fea591b664 Union1;
+            public FWP_CONDITION_UNION value;
+
+            [StructLayout(LayoutKind.Explicit)]
+            public struct FWP_CONDITION_UNION
+            {
+                // Union fields
+                [FieldOffset(0)]
+                public byte uint8;
+
+                [FieldOffset(0)]
+                public ushort uint16;
+
+                [FieldOffset(0)]
+                public uint uint32;
+
+                [FieldOffset(0)]
+                public IntPtr uint64; // Pointer to UINT64
+
+                [FieldOffset(0)]
+                public sbyte int8;
+
+                [FieldOffset(0)]
+                public short int16;
+
+                [FieldOffset(0)]
+                public int int32;
+
+                [FieldOffset(0)]
+                public IntPtr int64; // Pointer to INT64
+
+                [FieldOffset(0)]
+                public float float32;
+
+                [FieldOffset(0)]
+                public IntPtr double64; // Pointer to DOUBLE64
+
+                [FieldOffset(0)]
+                public IntPtr byteArray16; // Pointer to BYTE_ARRAY16
+
+                [FieldOffset(0)]
+                public IntPtr byteBlob; // Pointer to BYTE_BLOB
+
+                [FieldOffset(0)]
+                public IntPtr sid; // Pointer to SID
+
+                [FieldOffset(0)]
+                public IntPtr sd; // Pointer to SECURITY_DESCRIPTOR
+
+                [FieldOffset(0)]
+                public IntPtr tokenInformation; // Pointer to TOKEN_INFORMATION
+
+                [FieldOffset(0)]
+                public IntPtr tokenAccessInformation; // Pointer to TOKEN_ACCESS_INFORMATION
+
+                [FieldOffset(0)]
+                public IntPtr unicodeString; // Pointer to UNICODE_STRING
+
+                [FieldOffset(0)]
+                public IntPtr byteArray6; // Pointer to BYTE_ARRAY6
+
+                [FieldOffset(0)]
+                public IntPtr v4AddrMask; // Pointer to FWP_V4_ADDR_AND_MASK  
+
+                [FieldOffset(0)]
+                public IntPtr v6AddrMask; // Pointer to FWP_V6_ADDR_AND_MASK
+
+                // Note: For rangeValue, you would define a separate struct for it if needed.
+                // For example:
+                // [FieldOffset(0)]
+                // public IntPtr rangeValue; // Pointer to RANGE0
+            }
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -837,7 +818,7 @@ namespace NativeAPI
             public int numFilterConditions;
 
             /// FWPM_FILTER_CONDITION0*
-            public unsafe FWPM_FILTER_CONDITION0_* filterCondition;
+            public IntPtr filterCondition; // pointer to FWPM_FILTER_CONDITION0_
 
             /// FWPM_ACTION0->FWPM_ACTION0_
             public FWPM_ACTION0_ action;
@@ -854,6 +835,7 @@ namespace NativeAPI
             /// FWP_VALUE0->FWP_VALUE0_
             public FWP_VALUE0_ effectiveWeight;
         }
+
 
         [StructLayout(LayoutKind.Sequential)]
         public struct FWPM_SUBLAYER0_
@@ -1014,14 +996,14 @@ namespace NativeAPI
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmFilterAdd0")]
         public static extern uint FwpmFilterAdd0(IntPtr engineHandle,
             ref FWPM_FILTER0_ filter,
-            ref SECURITY_DESCRIPTOR_ sd,
-            ref IntPtr id);
+            IntPtr sd,
+            ref uint id);
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmFilterDeleteById0")]
         public static extern uint FwpmFilterDeleteById0(IntPtr engineHandle, IntPtr id);
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmFilterDeleteByKey0")]
-        public static extern uint FwpmFilterDeleteByKey0(IntPtr engineHandle, ref Guid key);
+        public static extern uint FwpmFilterDeleteByKey0(IntPtr engineHandle, IntPtr key);
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmSubLayerAdd0")]
         public static extern uint FwpmSubLayerAdd0([In()] IntPtr engineHandle,
@@ -1029,7 +1011,7 @@ namespace NativeAPI
             [In()] IntPtr sd);
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmSubLayerDeleteByKey0")]
-        public static extern uint FwpmSubLayerDeleteByKey0(IntPtr engineHandle, ref Guid key);
+        public static extern uint FwpmSubLayerDeleteByKey0(IntPtr engineHandle, IntPtr key);
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmCalloutAdd0")]
         public static extern uint FwpmCalloutAdd0(IntPtr engineHandle,
@@ -1064,7 +1046,7 @@ namespace NativeAPI
         public static extern void FwpmFreeMemory0(ref IntPtr p);
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmProviderDeleteByKey0")]
-        public static extern uint FwpmProviderDeleteByKey0(IntPtr engineHandle, ref Guid key);
+        public static extern uint FwpmProviderDeleteByKey0(IntPtr engineHandle, IntPtr key);
 
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmProviderEnum0")]
@@ -1130,7 +1112,7 @@ namespace NativeAPI
            IntPtr enumHandle);
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmCalloutDeleteByKey0")]
-        public static extern uint FwpmCalloutDeleteByKey0(IntPtr engineHandle, ref Guid key);
+        public static extern uint FwpmCalloutDeleteByKey0(IntPtr engineHandle, IntPtr key);
 
 
         [DllImport("FWPUClnt.dll", EntryPoint = "FwpmSessionEnum0")]
@@ -1915,7 +1897,7 @@ namespace NativeAPI
         {
             public FWPM_CONNECTION_ENUM_TEMPLATE0_ enumTemplate; // Pointer to FWPM_CONNECTION_ENUM_TEMPLATE0, use IntPtr for pointers
             public uint flags;          // UINT32 corresponds to uint in C#
-            public IntPtr sessionKey;     // GUID corresponds to Guid in C#
+            public Guid sessionKey;     // GUID corresponds to Guid in C#
         }
 
         public enum FWPM_CONNECTION_EVENT_TYPE_
@@ -1947,7 +1929,7 @@ namespace NativeAPI
         {
             public IntPtr enumTemplate; // Pointer to FWPM_CALLOUT_ENUM_TEMPLATE0, use IntPtr for pointers
             public FirewallSubscriptionFlags flags;          // UINT32 corresponds to uint in C#
-            public IntPtr sessionKey;     // GUID corresponds to Guid in C#
+            public Guid sessionKey;     // GUID corresponds to Guid in C#
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -1982,7 +1964,7 @@ namespace NativeAPI
         {
             public FWPM_SUBLAYER_ENUM_TEMPLATE0_ enumTemplate; // Pointer to FWPM_SUBLAYER_ENUM_TEMPLATE0
             public FirewallSubscriptionFlags flags;          // UINT32
-            public IntPtr sessionKey;     // GUID
+            public Guid sessionKey;     // GUID
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -2028,7 +2010,7 @@ namespace NativeAPI
         {
             public FWPM_PROVIDER_ENUM_TEMPLATE0_ enumTemplate; // Pointer to FWPM_PROVIDER_ENUM_TEMPLATE0
             public FirewallSubscriptionFlags flags;          // UINT32
-            public IntPtr sessionKey;     // GUID
+            public Guid sessionKey;     // GUID
         }
 
         public delegate void FWPM_FILTER_CHANGE_CALLBACK0_ (IntPtr context, FWPM_FILTER_CHANGE0_ eventData);
@@ -2099,7 +2081,7 @@ namespace NativeAPI
         {
             public IntPtr enumTemplate; // Pointer to FWPM_FILTER_ENUM_TEMPLATE0
             public FirewallSubscriptionFlags flags;          // UINT32
-            public IntPtr sessionKey;     // GUID
+            public Guid sessionKey;     // GUID
         }
 
 
@@ -2323,5 +2305,66 @@ namespace NativeAPI
             FWPM_SUBSCRIPTION_FLAG_NOTIFY_ON_DELETE = 0x00000002
         }
 
+        [DllImport("FWPUClnt.dll", SetLastError = true)]
+        public static extern uint FwpmCalloutSubscriptionsGet0(
+            IntPtr engineHandle,
+            out IntPtr entries, //IntPtr to FWPM_CALLOUT_SUBSCRIPTION0
+            out uint numEntries);
+
+        //[DllImport("FWPUClnt.dll", SetLastError = true)]
+        //public static extern uint FwpmConnectionSubscriptionsGet0(
+        //    IntPtr engineHandle,
+        //    out IntPtr entries, //IntPtr to FWPM_CONNECTION_SUBSCRIPTION0 
+        //    out uint numEntries);
+
+        [DllImport("FWPUClnt.dll", SetLastError = true)]
+        public static extern uint FwpmFilterSubscriptionsGet0(
+            IntPtr engineHandle,
+            out IntPtr entries, //IntPtr to FWPM_FILTER_SUBSCRIPTION0  
+            out uint numEntries);
+
+        [DllImport("FWPUClnt.dll", SetLastError = true)]
+        public static extern uint FwpmNetEventSubscriptionsGet0(
+            IntPtr engineHandle,
+            out IntPtr entries, //IntPtr to FWPM_NET_EVENT_SUBSCRIPTION0   
+            out uint numEntries);
+
+        [DllImport("FWPUClnt.dll", SetLastError = true)]
+        public static extern uint FwpmProviderContextSubscriptionsGet0(
+            IntPtr engineHandle,
+            out IntPtr entries, //IntPtr to FWPM_PROVIDER_CONTEXT_SUBSCRIPTION0    
+            out uint numEntries);
+
+        [DllImport("FWPUClnt.dll", SetLastError = true)]
+        public static extern uint FwpmProviderSubscriptionsGet0(
+            IntPtr engineHandle,
+            out IntPtr entries, //IntPtr to FWPM_PROVIDER_SUBSCRIPTION0     
+            out uint numEntries);
+
+        [DllImport("FWPUClnt.dll", SetLastError = true)]
+        public static extern uint FwpmSubLayerSubscriptionsGet0(
+            IntPtr engineHandle,
+            out IntPtr entries, //IntPtr to FWPM_SUBLAYER_SUBSCRIPTION0      
+            out uint numEntries);
+
+        [DllImport("FWPUClnt.dll", SetLastError = true)]
+            public static extern uint FwpmGetAppIdFromFileName0(
+            [MarshalAs(UnmanagedType.LPWStr)] string fileName,
+            out IntPtr appId
+        );
+
+        // LAYER KEYS
+        public static readonly Guid FWPM_LAYER_ALE_AUTH_CONNECT_V4 = new Guid("c38d57d1-05a7-4c33-904f-7fbceee60e82");
+        public static readonly Guid FWPM_LAYER_ALE_AUTH_RECV_ACCEPT_V4 = new Guid("c38d57d1-05a7-4c33-904f-7fbceee60e82");
+        public static readonly Guid FWPM_LAYER_ALE_AUTH_LISTEN_V4 = new Guid("88bb5dad-76d7-4227-9c71-df0a3ed7be7e");    
+
+
+        // FILTERING CONDITION IDENTIFIERS
+        public static readonly Guid FWPM_CONDITION_IP_REMOTE_ADDRESS_V4 = new Guid("1febb610-3bcc-45e1-bc36-2e067e2cb186");
+        public static readonly Guid FWPM_CONDITION_IP_REMOTE_PORT = new Guid("c35a604d-d22b-4e1a-91b4-68f674ee674b");
+        public static readonly Guid FWPM_CONDITION_IP_REMOTE_ADDRESS = new Guid("b235ae9a-1d64-49b8-a44c-5ff3d9095045");
+        public static readonly Guid FWPM_CONDITION_IP_LOCAL_ADDRESS = new Guid("6ec7f6c4-376b-45d7-9e9c-d337cedcd237");
+        public static readonly Guid FWPM_CONDITION_IP_LOCAL_PORT = new Guid("0c1ba1af-5765-453f-af22-a8f791ac775b");
+        public static readonly Guid FWPM_CONDITION_ALE_APP_ID = new Guid("d78e1e87-8644-4ea5-9437-d809ecefc971");
     }
 }

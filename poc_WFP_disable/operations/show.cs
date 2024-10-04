@@ -28,47 +28,13 @@ namespace poc_WFP_disable
         private static readonly LineThickness StrokeRight = new LineThickness(LineWidth.None, LineWidth.None, LineWidth.Single, LineWidth.Single);
 
         [Obsolete]
-        private void PrintAll_Providers()
+        private void Print_Sessions(IEnumerable<FWPM_SESSION0_> sessions)
         {
-            WriteLineToConsole("\nWFP Providers:");
-            var doc = new Document { Background = Black, Color = Gray }
-                .AddChildren(
-                    new Grid { Stroke = StrokeHeader, StrokeColor = DarkGray }
-                        .AddColumns(
-                            new Column { Width = GridLength.Auto },
-                            new Column { Width = GridLength.Auto, MaxWidth = 20 },
-                            new Column { Width = GridLength.Star(1) },
-                            new Column { Width = GridLength.Auto }
-                        )
-                        .AddChildren(
-                            new Cell { Stroke = StrokeHeader, Color = White }
-                                .AddChildren("Guid"),
-                            new Cell { Stroke = StrokeHeader, Color = White }
-                                .AddChildren("Name"),
-                            new Cell { Stroke = StrokeHeader, Color = White }
-                                .AddChildren("Description"),
-                            new Cell { Stroke = StrokeHeader, Color = White }
-                                .AddChildren("Service Name"),
-                            wfpClient.GetProviders().Select(item => new[] {
-                                new Cell { Stroke = StrokeRight }
-                                    .AddChildren(item.providerKey),
-                                new Cell { Stroke = StrokeRight, Color = Yellow }
-                                    .AddChildren(item.displayData.name),
-                                new Cell { Stroke = StrokeRight, Color = White}
-                                    .AddChildren(item.displayData.description),
-                                new Cell { Stroke = StrokeRight}
-                                    .AddChildren(item.serviceName),
-                            })
-                        )
-                );
-
-            ConsoleRenderer.RenderDocument(doc);
-        }
-
-        [Obsolete]
-        private void PrintAll_Sessions()
-        {
-            WriteLineToConsole("\nWFP Sessions:");
+            if (sessions.Count() == 0)
+            {
+                WriteLineToConsole("\t\tNONE");
+                return;
+            }
             var doc = new Document { Background = Black, Color = Gray }
                 .AddChildren(
                     new Grid { Stroke = StrokeHeader, StrokeColor = DarkGray }
@@ -96,7 +62,7 @@ namespace poc_WFP_disable
                                 .AddChildren("User Name"),
                             new Cell { Stroke = StrokeHeader, Color = White }
                                 .AddChildren("Kernel Mode"),
-                            wfpClient.GetSessions().Select(item => new[] {
+                            sessions.Select(item => new[] {
                                 new Cell { Stroke = StrokeRight }
                                     .AddChildren(item.sessionKey),
                                 new Cell { Stroke = StrokeRight, Color = Yellow }
@@ -119,41 +85,40 @@ namespace poc_WFP_disable
         }
 
         [Obsolete]
-        private void PrintAll_Sublayers()
+        private void Print_Providers(IEnumerable<FWPM_PROVIDER0_> providers)
         {
-            WriteLineToConsole("\nWFP Syblayers:");
+            if (providers.Count() == 0)
+            {
+                WriteLineToConsole("\t\tNONE");
+                return;
+            }
             var doc = new Document { Background = Black, Color = Gray }
                 .AddChildren(
                     new Grid { Stroke = StrokeHeader, StrokeColor = DarkGray }
                         .AddColumns(
                             new Column { Width = GridLength.Auto },
                             new Column { Width = GridLength.Auto, MaxWidth = 20 },
-                            new Column { Width = GridLength.Auto, MaxWidth = 30 },
-                            new Column { Width = GridLength.Auto },
+                            new Column { Width = GridLength.Star(1) },
                             new Column { Width = GridLength.Auto }
                         )
                         .AddChildren(
                             new Cell { Stroke = StrokeHeader, Color = White }
-                                .AddChildren("guid"),
+                                .AddChildren("Guid"),
                             new Cell { Stroke = StrokeHeader, Color = White }
                                 .AddChildren("Name"),
                             new Cell { Stroke = StrokeHeader, Color = White }
                                 .AddChildren("Description"),
                             new Cell { Stroke = StrokeHeader, Color = White }
-                                .AddChildren("Weight"),
-                            new Cell { Stroke = StrokeHeader, Color = White }
-                                .AddChildren("Provider guid"),
-                            wfpClient.GetSubLayers().Select(item => new[] {
+                                .AddChildren("Service Name"),
+                            providers.Select(item => new[] {
                                 new Cell { Stroke = StrokeRight }
-                                    .AddChildren(item.subLayerKey),
+                                    .AddChildren(item.providerKey),
                                 new Cell { Stroke = StrokeRight, Color = Yellow }
                                     .AddChildren(item.displayData.name),
                                 new Cell { Stroke = StrokeRight, Color = White}
                                     .AddChildren(item.displayData.description),
-                                new Cell { Stroke = StrokeRight }
-                                    .AddChildren(item.weight),
-                                new Cell { Stroke = StrokeRight }
-                                    .AddChildren(item.providerKey == IntPtr.Zero ? null : Marshal.PtrToStructure<Guid>(item.providerKey)),
+                                new Cell { Stroke = StrokeRight}
+                                    .AddChildren(item.serviceName),
                             })
                         )
                 );
@@ -162,9 +127,13 @@ namespace poc_WFP_disable
         }
 
         [Obsolete]
-        private void PrintAll_Filters()
+        private void Print_Filters(IEnumerable<FWPM_FILTER0_> filters)
         {
-            WriteLineToConsole("\nWFP Filters:");
+            if (filters.Count() == 0)
+            {
+                WriteLineToConsole("\t\tNONE");
+                return;
+            }
             var doc = new Document { Background = Black, Color = Gray }
                 .AddChildren(
                     new Grid { Stroke = StrokeHeader, StrokeColor = DarkGray }
@@ -192,7 +161,7 @@ namespace poc_WFP_disable
                             //    .AddChildren("Weight"),
                             new Cell { Stroke = StrokeHeader, Color = White }
                                 .AddChildren("Provider guid"),
-                            wfpClient.GetFilters().Select(item => new[] {
+                            filters.Select(item => new[] {
                                 new Cell { Stroke = StrokeRight }
                                     .AddChildren(item.filterKey),
                                 new Cell { Stroke = StrokeRight }
@@ -215,9 +184,13 @@ namespace poc_WFP_disable
         }
 
         [Obsolete]
-        private void PrintAll_Callouts()
+        private void Print_Callouts(IEnumerable<FWPM_CALLOUT0_> callouts)
         {
-            WriteLineToConsole("\nWFP Callouts");
+            if (callouts.Count() == 0)
+            {
+                WriteLineToConsole("\t\tNONE");
+                return;
+            }
             var doc = new Document { Background = Black, Color = Gray }
                 .AddChildren(
                     new Grid { Stroke = StrokeHeader, StrokeColor = DarkGray }
@@ -239,7 +212,7 @@ namespace poc_WFP_disable
                                 .AddChildren("Description"),
                             new Cell { Stroke = StrokeHeader, Color = White }
                                 .AddChildren("Provider guid"),
-                            wfpClient.GetCallouts().Select(item => new[] {
+                            callouts.Select(item => new[] {
                                 new Cell { Stroke = StrokeRight }
                                     .AddChildren(item.calloutKey),
                                 //new Cell { Stroke = StrokeRight }
@@ -258,9 +231,13 @@ namespace poc_WFP_disable
         }
 
         [Obsolete]
-        private void PrintAll_Connections()
+        private void Print_Connections(IEnumerable<FWPM_CONNECTION0_> connections)
         {
-            WriteLineToConsole("\nWFP Connections");
+            if (connections.Count() == 0)
+            {
+                WriteLineToConsole("\t\tNONE");
+                return;
+            }
             var doc = new Document { Background = Black, Color = Gray }
                 .AddChildren(
                     new Grid { Stroke = StrokeHeader, StrokeColor = DarkGray }
@@ -282,7 +259,7 @@ namespace poc_WFP_disable
                                 .AddChildren("Bytes Out"),
                             new Cell { Stroke = StrokeHeader, Color = White }
                                 .AddChildren("Provider guid"),
-                            wfpClient.GetConnections().Select(item => new[] {
+                            connections.Select(item => new[] {
                                 new Cell { Stroke = StrokeRight }
                                     .AddChildren(item.connectionId),
                                 //new Cell { Stroke = StrokeRight }
@@ -300,6 +277,94 @@ namespace poc_WFP_disable
             ConsoleRenderer.RenderDocument(doc);
         }
 
+        [Obsolete]
+        private void Print_Sublayers(IEnumerable<FWPM_SUBLAYER0_> sublayes)
+        {
+            if (sublayes.Count() == 0)
+            {
+                WriteLineToConsole("\tNONE");
+                return;
+            }
+            var doc = new Document { Background = Black, Color = Gray }
+                .AddChildren(
+                    new Grid { Stroke = StrokeHeader, StrokeColor = DarkGray }
+                        .AddColumns(
+                            new Column { Width = GridLength.Auto },
+                            new Column { Width = GridLength.Auto, MaxWidth = 20 },
+                            new Column { Width = GridLength.Auto, MaxWidth = 30 },
+                            new Column { Width = GridLength.Auto },
+                            new Column { Width = GridLength.Auto }
+                        )
+                        .AddChildren(
+                            new Cell { Stroke = StrokeHeader, Color = White }
+                                .AddChildren("guid"),
+                            new Cell { Stroke = StrokeHeader, Color = White }
+                                .AddChildren("Name"),
+                            new Cell { Stroke = StrokeHeader, Color = White }
+                                .AddChildren("Description"),
+                            new Cell { Stroke = StrokeHeader, Color = White }
+                                .AddChildren("Weight"),
+                            new Cell { Stroke = StrokeHeader, Color = White }
+                                .AddChildren("Provider guid"),
+                            sublayes.Select(item => new[] {
+                                new Cell { Stroke = StrokeRight }
+                                    .AddChildren(item.subLayerKey),
+                                new Cell { Stroke = StrokeRight, Color = Yellow }
+                                    .AddChildren(item.displayData.name),
+                                new Cell { Stroke = StrokeRight, Color = White}
+                                    .AddChildren(item.displayData.description),
+                                new Cell { Stroke = StrokeRight }
+                                    .AddChildren(item.weight),
+                                new Cell { Stroke = StrokeRight }
+                                    .AddChildren(item.providerKey == IntPtr.Zero ? null : Marshal.PtrToStructure<Guid>(item.providerKey)),
+                            })
+                        )
+                );
+
+            ConsoleRenderer.RenderDocument(doc);
+        }
+
+        [Obsolete]
+        private void PrintAll_Providers()
+        {
+            WriteLineToConsole("\nWFP Providers:");
+            Print_Providers(wfpClient.GetProviders());
+        }
+
+        [Obsolete]
+        private void PrintAll_Sessions()
+        {
+            WriteLineToConsole("\nWFP Sessions:");
+            Print_Sessions(wfpClient.GetSessions());
+        }
+
+        [Obsolete]
+        private void PrintAll_Sublayers()
+        {
+            WriteLineToConsole("\nWFP Syblayers:");
+            Print_Sublayers(wfpClient.GetSubLayers());
+        }
+
+        [Obsolete]
+        private void PrintAll_Filters()
+        {
+            WriteLineToConsole("\nWFP Filters:");
+            Print_Filters(wfpClient.GetFilters());
+        }
+
+        [Obsolete]
+        private void PrintAll_Callouts()
+        {
+            WriteLineToConsole("\nWFP Callouts");
+            Print_Callouts(wfpClient.GetCallouts());
+        }
+
+        [Obsolete]
+        private void PrintAll_Connections()
+        {
+            WriteLineToConsole("\nWFP Connections");
+            Print_Connections(wfpClient.GetConnections());
+        }
 
         private void Print_Statistics()
         {
@@ -430,31 +495,31 @@ namespace poc_WFP_disable
 
             if (sessions.Count() > 0 && sessions.Where(item => input.Equals(item.sessionKey)).Count() > 0)
             {
-                PrintSessionInfo(sessions.Where(item => input.Equals(item.sessionKey)).First());
+                PrintSessionDitailedInfo(sessions.Where(item => input.Equals(item.sessionKey)).First());
                 return;
             }
 
             if (providers.Count() > 0 && providers.Where(item => input.Equals(item.providerKey)).Count() > 0)
             {
-                PrintProviderInfo(providers.Where(item => input.Equals(item.providerKey)).First());
+                PrintProviderDitailedInfo(providers.Where(item => input.Equals(item.providerKey)).First());
                 return;
             }
 
             if (filters.Count() > 0 && filters.Where(item => input.Equals(item.filterKey)).Count() > 0)
             {
-                PrintFilterInfo(filters.Where(item => input.Equals(item.filterKey)).First());
+                PrintFilterDitailedInfo(filters.Where(item => input.Equals(item.filterKey)).First());
                 return;
             }
 
             if (sublayers.Count() > 0 && sublayers.Where(item => input.Equals(item.subLayerKey)).Count() > 0)
             {
-                PrintSublayerInfo(sublayers.Where(item => input.Equals(item.subLayerKey)).First());
+                PrintSublayerDitailedInfo(sublayers.Where(item => input.Equals(item.subLayerKey)).First());
                 return;
             }
 
             if (callouts.Count() > 0 && callouts.Where(item => input.Equals(item.calloutKey)).Count() > 0)
             {
-                PrintCalloutInfo(callouts.Where(item => input.Equals(item.calloutKey)).First());
+                PrintCalloutDitailedInfo(callouts.Where(item => input.Equals(item.calloutKey)).First());
                 return;
             }
 
@@ -610,22 +675,21 @@ namespace poc_WFP_disable
             ConsoleRenderer.RenderDocument(doc);
         }
 
-
-
-        public void PrintFilterInfo(FWPM_FILTER0_ item)
+        public void PrintFilterDitailedInfo(FWPM_FILTER0_ item)
         {
             WriteLineToConsole($"Type: 'Filter'");
 
             List<Dictionary<string, string>> item_params = new List<Dictionary<string, string>>();
+            List<Dictionary<string, string>> item_conditions = new List<Dictionary<string, string>>();
 
             item_params.Add(new Dictionary<string, string> { { "filterKey", item.filterKey.ToString() } });
             item_params.Add(new Dictionary<string, string> { { "filterId", item.filterId.ToString() } });
-            item_params.Add(new Dictionary<string, string> { { "name", item.displayData.name.ToString() } } );
-            item_params.Add(new Dictionary<string, string> { { "description", item.displayData.description } } );
-            item_params.Add(new Dictionary<string, string> { { "flags", item.flags.ToString() } } );
+            item_params.Add(new Dictionary<string, string> { { "name", item.displayData.name.ToString() } });
+            item_params.Add(new Dictionary<string, string> { { "description", item.displayData.description } });
+            item_params.Add(new Dictionary<string, string> { { "flags", item.flags.ToString() } });
             item_params.Add(new Dictionary<string, string> { { "providerKey", (item.providerKey != IntPtr.Zero ? Marshal.PtrToStructure<Guid>(item.providerKey).ToString() : "NONE") } });
             item_params.Add(new Dictionary<string, string> { { "providerData", "..." } });
-            item_params.Add(new Dictionary<string, string> { { "layerKey", item.layerKey.ToString() } } );
+            item_params.Add(new Dictionary<string, string> { { "layerKey", item.layerKey.ToString() } });
             item_params.Add(new Dictionary<string, string> { { "subLayerKey", item.subLayerKey.ToString() } });
             item_params.Add(new Dictionary<string, string> { { "weight", item.weight.ToString() } });
             item_params.Add(new Dictionary<string, string> { { "effectiveWeight", item.effectiveWeight.ToString() } });
@@ -633,13 +697,34 @@ namespace poc_WFP_disable
             item_params.Add(new Dictionary<string, string> { { "action", item.action.type.ToString() } });
             item_params.Add(new Dictionary<string, string> { { "context", item.context.ToString() } });
             item_params.Add(new Dictionary<string, string> { { "filterCondition", "UNDERCONSTRUCTION" } });
+
             Print2ColumnTable(item_params);
+
+            WriteLineToConsole($"Conditions");
+
+            foreach (FWPM_FILTER_CONDITION0_ condition in wfpClient.GetFilterConditions(item))
+            {
+                
+                Dictionary<string, string> cond = new Dictionary<string, string>
+                {
+                    // TODO convert fieldKey to COnfition variable name
+                    { "fieldKey", condition.fieldKey.ToString() },
+                    { "matchType", condition.matchType.ToString() },
+                    { "conditionValue.type", condition.conditionValue.type.ToString() }
+                };
+
+                item_conditions.Add(cond);
+                
+            }
+
+            Print2ColumnTableSeparated(item_conditions);
+
             PrintFilterSecurityInfo(item);
 
 
         }
 
-        public void PrintCalloutInfo(FWPM_CALLOUT0_ item)
+        public void PrintCalloutDitailedInfo(FWPM_CALLOUT0_ item)
         {
             WriteLineToConsole($"Type: 'Callout'");
 
@@ -657,7 +742,7 @@ namespace poc_WFP_disable
             PrintCalloutSecurityInfo(item);
         }
 
-        public void PrintConnectionInfo(FWPM_CONNECTION0_ item)
+        public void PrintConnectionDitailedInfo(FWPM_CONNECTION0_ item)
         {
             WriteLineToConsole($"Type: 'Connecton'");
 
@@ -683,7 +768,7 @@ namespace poc_WFP_disable
             PrintConnectionSecurityInfo(item);
         }
 
-        public void PrintProviderInfo(FWPM_PROVIDER0_ item)
+        public void PrintProviderDitailedInfo(FWPM_PROVIDER0_ item)
         {
 
             WriteLineToConsole($"Type: 'Provider'");
@@ -700,7 +785,7 @@ namespace poc_WFP_disable
             PrintProviderSecurityInfo(item);
         }
 
-        public void PrintSessionInfo(FWPM_SESSION0_ item)
+        public void PrintSessionDitailedInfo(FWPM_SESSION0_ item)
         {
             WriteLineToConsole($"Type: 'Session'");
 
@@ -719,7 +804,7 @@ namespace poc_WFP_disable
             Print2ColumnTable(item_params);
         }
 
-        public void PrintSublayerInfo(FWPM_SUBLAYER0_ item)
+        public void PrintSublayerDitailedInfo(FWPM_SUBLAYER0_ item)
         {
             WriteLineToConsole($"Type: 'SubLayer'");
 
@@ -734,6 +819,22 @@ namespace poc_WFP_disable
             item_params.Add(new Dictionary<string, string> { { "weight", item.weight.ToString() } });
             Print2ColumnTable(item_params);
             PrintSublayerSecurityInfo(item);
+        }
+
+        public void PrintSubscriptions()
+        {
+            WriteLineToConsole("WFP Subscribers:");
+            WriteLineToConsole("\n\tPROVIDER subscribers:");
+            Print_Sessions(wfpClient.GetProviderSubscribtions());
+            WriteLineToConsole("\n\tFILTER subscribers:");
+            Print_Sessions(wfpClient.GetFilterSubscribtions());
+            WriteLineToConsole("\n\tCALLOUT subscribers:");
+            Print_Sessions(wfpClient.GetCalloutSubscribtions());
+            WriteLineToConsole("\n\tSUBLAYER subscribers:");
+            Print_Sessions(wfpClient.GetSublayerSubscribtions());
+            //WriteLineToConsole("\tCONNECTION subscribers:");
+            //Print_Sessions(wfpClient.GetConnectionSubscribtions());
+
         }
 
     }

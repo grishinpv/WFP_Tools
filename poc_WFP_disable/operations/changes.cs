@@ -14,36 +14,80 @@ namespace poc_WFP_disable
         {
             WriteLineToConsole($"[Filter changed] op: {change.changeType}, filterKey: {change.filterKey}");
             if (change.changeType == FWPM_CHANGE_TYPE_.FWPM_CHANGE_ADD)
-                PrintFilterInfo(wfpClient.GetFilterByKey(change.filterKey));
-
+            {
+                try
+                {
+                    PrintFilterDitailedInfo(wfpClient.GetFilterByKey(change.filterKey));
+                }
+                catch (Exception e)
+                {
+                    WriteLineToConsole($"Failed to get ditailed info about '{change.filterKey}': {e.Message}");
+                }
+            }
         }
 
         public void ProviderChanged_Callback(IntPtr context, FWPM_PROVIDER_CHANGE0_ change)
         {
             WriteLineToConsole($"[Provider changed] op: {change.changeType}, providerKey: {change.providerKey}");
             if (change.changeType == FWPM_CHANGE_TYPE_.FWPM_CHANGE_ADD)
-                PrintProviderInfo(wfpClient.GetProviderByKey(change.providerKey));
+            {
+                try
+                {
+                    PrintProviderDitailedInfo(wfpClient.GetProviderByKey(change.providerKey));
+                }
+                catch (Exception e)
+                {
+                    WriteLineToConsole($"Failed to get ditailed info about '{change.providerKey}': {e.Message}");
+                }
+            }
         }
 
         public void CalloutChanged_Callback(IntPtr context, FWPM_CALLOUT_CHANGE0_ change)
         {
             WriteLineToConsole($"[Callout changed] op: {change.changeType}, calloutKey: {change.calloutKey}");
             if (change.changeType == FWPM_CHANGE_TYPE_.FWPM_CHANGE_ADD)
-                PrintCalloutInfo(wfpClient.GetCalloutByKey(change.calloutKey)); 
+            {
+                try
+                {
+                    PrintCalloutDitailedInfo(wfpClient.GetCalloutByKey(change.calloutKey));
+                }
+                catch (Exception e)
+                {
+                    WriteLineToConsole($"Failed to get ditailed info about '{change.calloutKey}': {e.Message}");
+                }
+            }
         }
 
         public void SyblayerChanged_Callback(IntPtr context, FWPM_SUBLAYER_CHANGE0_ change)
         {
             WriteLineToConsole($"[Sublayer changed] op: {change.changeType}, sublayerKey: {change.subLayerKey}");
             if (change.changeType == FWPM_CHANGE_TYPE_.FWPM_CHANGE_ADD)
-                PrintSublayerInfo(wfpClient.GetSubLayerByKey(change.subLayerKey));
+            {
+                try
+                {
+                    PrintSublayerDitailedInfo(wfpClient.GetSubLayerByKey(change.subLayerKey));
+                }
+                catch (Exception e)
+                {
+                    WriteLineToConsole($"Failed to get ditailed info about '{change.subLayerKey}': {e.Message}");
+                }
+            }
         }
 
         public void ConnectionChanged_Callack(IntPtr context, FWPM_CONNECTION_EVENT_TYPE_ eventType, in FWPM_CONNECTION0_ connection)
         {
             WriteLineToConsole($"[Connection changed] op: {eventType}");
-            if (eventType == FWPM_CONNECTION_EVENT_TYPE_.FWPM_CONNECTION_EVENT_ADD) 
-                PrintConnectionInfo(connection);
+            if (eventType == FWPM_CONNECTION_EVENT_TYPE_.FWPM_CONNECTION_EVENT_ADD)
+            {
+                try
+                {
+                    PrintConnectionDitailedInfo(connection);
+                }
+                catch (Exception e)
+                {
+                    WriteLineToConsole($"Failed to get ditailed info about '{connection.connectionId}': {e.Message}");
+                }
+            }
         }
 
         public void SubscribeAllEvents()
@@ -59,6 +103,9 @@ namespace poc_WFP_disable
 
             wfpClient.UnsubscribeAllChanges();
         }
+
+
+        
 
     }
 }

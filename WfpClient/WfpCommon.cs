@@ -215,28 +215,30 @@ namespace Wfp
         private void DeleteItem<T>(Guid key)
         {
             uint code;
+            IntPtr guidPtr = Marshal.AllocHGlobal(Marshal.SizeOf(key));
+            Marshal.Copy(key.ToByteArray(), 0, guidPtr, 16);
 
             if (typeof(T) == typeof(FWPM_PROVIDER0_))
             {
-                code = FwpmProviderDeleteByKey0(handleManager.GetHandle<T>(), ref key);
+                code = FwpmProviderDeleteByKey0(handleManager.engineHandle, guidPtr);
                 if (code != 0 && code != (uint)FWP_E.PROVIDER_NOT_FOUND)
                     throw new NativeException(nameof(FwpmProviderDeleteByKey0), code);
             }
             else if (typeof(T) == typeof(FWPM_FILTER0_))
             {
-                code = FwpmFilterDeleteByKey0(handleManager.GetHandle<T>(), ref key);
+                code = FwpmFilterDeleteByKey0(handleManager.engineHandle, guidPtr);
                 if (code != 0 && code != (uint)FWP_E.FILTER_NOT_FOUND)
                     throw new NativeException(nameof(FwpmFilterDeleteByKey0), code);
             }
             else if (typeof(T) == typeof(FWPM_SUBLAYER0_))
             {
-                code = FwpmSubLayerDeleteByKey0(handleManager.GetHandle<T>(), ref key);
+                code = FwpmSubLayerDeleteByKey0(handleManager.engineHandle,  guidPtr);
                 if (code != 0 && code != (uint)FWP_E.SUBLAYER_NOT_FOUND)
                     throw new NativeException(nameof(FwpmSubLayerDeleteByKey0), code);
             }
             else if (typeof(T) == typeof(FWPM_CALLOUT0_))
             {
-                code = FwpmCalloutDeleteByKey0(handleManager.GetHandle<T>(), ref key);
+                code = FwpmCalloutDeleteByKey0(handleManager.engineHandle, guidPtr);
                 if (code != 0 && code != (uint)FWP_E.CALLOUT_NOT_FOUND)
                     throw new NativeException(nameof(FwpmCalloutDeleteByKey0), code);
             }
@@ -394,7 +396,7 @@ namespace Wfp
 
 
             code = callable(engineHandle, enumHandle);
-            if (code.Equals((uint)WfpNativeAPI.FWP_EXCEPTION_.FWP_E_SESSION_ABORTED))
+            if (code.Equals((uint)FWP_EXCEPTION_.FWP_E_SESSION_ABORTED))
             {
                 // reconnect if suddenly lost connection (works for FilterEnum)
                 code = this.Connect();
@@ -692,6 +694,73 @@ namespace Wfp
             Console.WriteLine($"Unsubscribed changes successfully {typeof(T).Name}");
             
         }
-    
+
+        private IEnumerable<FWPM_SESSION0_> GetSubscribtions<T>()
+        {
+            IntPtr entries = IntPtr.Zero;
+            uint numEntries = 0;
+            try
+            {
+                var callable = FwpmProviderSubscriptionsGet0; // default
+
+                if (typeof(T) == typeof(FWPM_PROVIDER0_))
+
+                    callable = FwpmProviderSubscriptionsGet0;
+
+                else if (typeof(T) == typeof(FWPM_FILTER0_))
+
+                    callable = FwpmFilterSubscriptionsGet0;
+
+                else if (typeof(T) == typeof(FWPM_SUBLAYER0_))
+
+                    callable = FwpmSubLayerSubscriptionsGet0;
+
+                else if (typeof(T) == typeof(FWPM_CALLOUT0_))
+
+                    callable = FwpmCalloutSubscriptionsGet0;
+
+                //else if (typeof(T) == typeof(FWPM_CONNECTION0_))
+
+                //    callable = FwpmConnectionSubscriptionsGet0;
+
+                else
+
+                    throw new ArgumentException($"Unsupported type: {typeof(T).Name}");
+
+                uint code = callable(
+                    handleManager.engineHandle,
+                    out entries,
+                    out numEntries);
+
+                var itmeSize = Marshal.SizeOf<IntPtr>();//Marshal.SizeOf<T>();
+                for (uint i = 0; i < numEntries; i++)
+                {
+                    var ptr = new IntPtr(entries.ToInt64() + i * itmeSize);
+                    var ptr2 = Marshal.PtrToStructure<IntPtr>(ptr);
+                    var item = Marshal.PtrToStructure<FWPM_FILTER_SUBSCRIPTION0_>(ptr2);
+
+                    var session = item.sessionKey;
+                    //var enumTemplate = Marshal.PtrToStructure<FWPM_FILTER_ENUM_TEMPLATE0_>((IntPtr)item.GetType().GetField("enumTemplate").GetValue(item));
+
+                    if (session == Guid.Empty || GetSessions().Where(item => item.sessionKey == session).Count() == 0)
+                    {
+                        Console.WriteLine($"Got subscriber '{session}' for type `{typeof(T).Name}' but not found in sessions");
+                        continue;
+                    }
+
+                    yield return GetSessions().Where(item => item.sessionKey == session).First();
+
+                }
+            }
+            finally
+            {
+                if (entries != IntPtr.Zero)
+                {
+                    FwpmFreeMemory0(ref entries);
+                }
+            }
+
+        }
+
     }
 }

@@ -10,8 +10,9 @@ namespace poc_WFP_disable
 {
     internal partial class Program : IDisposable
     {
-        public WfpClient wfpClient = new WfpClient();
+        public Wfp.WfpClient wfpClient = new Wfp.WfpClient();
         private static readonly object ConsoleLock = new object();
+        private Guid sublayer = new Guid("b19a6c3d-1e54-47ad-b0cf-fa14eef66274");
 
         public void Dispose()
         {

@@ -39,7 +39,7 @@ namespace Wfp
             FWPM_PROVIDER_SUBSCRIPTION0_ subscription = new FWPM_PROVIDER_SUBSCRIPTION0_
             {
                 enumTemplate = enumTemplate,
-                sessionKey = session_key,
+                sessionKey = session_key != IntPtr.Zero ? Marshal.PtrToStructure<Guid>(session_key) : Guid.Empty,
                 flags = FirewallSubscriptionFlags.FWPM_SUBSCRIPTION_FLAG_NOTIFY_ON_ADD | FirewallSubscriptionFlags.FWPM_SUBSCRIPTION_FLAG_NOTIFY_ON_DELETE
             };
 
@@ -66,6 +66,10 @@ namespace Wfp
             Unsibscribe<FWPM_PROVIDER0_>(handleManager.providerObj.subscription_changes);
         }
 
+        public IEnumerable<FWPM_SESSION0_> GetProviderSubscribtions()
+        {
+            return GetSubscribtions<FWPM_PROVIDER0_>();
+        }
 
     }
 }

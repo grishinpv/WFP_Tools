@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,29 +18,12 @@ namespace poc_WFP_disable
                 WriteLineToConsole("Main Menu:");
                 WriteLineToConsole("1) Sessions");
                 WriteLineToConsole("2) Inspect");
-                WriteLineToConsole("3) Remove");
-                WriteLineToConsole("4) Rule Monitor");
-                WriteLineToConsole("5) Subscribe for changes");
-                WriteLineToConsole("6) Exit");
-                Console.Write("\nSelect an option: ");
-
-                ///
-                /// sessions
-                /// inspect
-                ///     providers
-                ///     sublayes
-                ///     filters
-                ///     callouts
-                ///     set provider guid filter
-                ///     set name filter
-                /// remove
-                ///     by guid
-                ///     by provider
-                ///     by Name substing filter
-                /// filter validator
-                /// traffic monitor
-                ///
-
+                WriteLineToConsole("3) Add Rule");
+                WriteLineToConsole("4) Remove");
+                WriteLineToConsole("5) Rule Monitor");
+                WriteLineToConsole("6) Subscribe for changes");
+                WriteLineToConsole("7) Exit");
+                WriteLineToConsole("\nSelect an option: ");
 
 
                 switch (Console.ReadLine())
@@ -51,17 +35,19 @@ namespace poc_WFP_disable
                         ShowInspectMenu();
                         break;
                     case "3":
-                        WriteLineToConsole("UNDER CONSTRUCTION");
-                        //ShowRemoveMenu();
+                        ShowAddFilter();
                         PauseBeforeContinuing();
                         break;
                     case "4":
-                        ShowMonotorMenu();
+                        ShowRemoveMenu();
                         break;
                     case "5":
-                        ShowSubscriptionMenu();
+                        ShowMonotorMenu();
                         break;
                     case "6":
+                        ShowSubscriptionMenu();
+                        break;
+                    case "7":
                         showMenu = false;
                         break;
                     default:
@@ -73,12 +59,80 @@ namespace poc_WFP_disable
 
         }
 
+
+        private void ShowRemoveMenu()
+        {
+            Console.Clear();
+            ShowProviderFilters();
+            WriteLineToConsole("Remove Menu:");
+            WriteLineToConsole("1) Remove by filters");
+            WriteLineToConsole("2) Set Provider GUID filter");
+            WriteLineToConsole("3) Set Name filter");
+            WriteLineToConsole("4) Clear filters");
+            WriteLineToConsole("5) Back to Main Menu");
+            Console.Write("\nSelect an option: ");
+            
+
+            switch (Console.ReadLine())
+            {
+                case "1":
+                    KillByFilter();
+                    PauseBeforeContinuing();
+                    ShowRemoveMenu();
+                    break;
+                case "2":
+                    AddProviderFilter();
+                    PauseBeforeContinuing();
+                    ShowRemoveMenu();
+                    break;
+                case "3":
+                    AddMonitorFilter();
+                    PauseBeforeContinuing();
+                    ShowRemoveMenu();
+                    break;
+                case "4":
+                    wfpClient.ClearMonitorFilter();
+                    PauseBeforeContinuing();
+                    ShowRemoveMenu();
+                    break;
+                case "5":
+                    return;
+                default:
+                    WriteLineToConsole("Invalid option. Please try again.");
+                    ShowRemoveMenu();
+                    break;
+            }
+        }
+
+
+        private void ShowAddFilter()
+        {
+            IPAddress address;
+
+            WriteLineToConsole("Input ip addrss: ");
+            string input = Console.ReadLine();
+            try
+            {
+                address = IPAddress.Parse(input);
+            }
+            catch
+            {
+                Console.WriteLine($"Incorrect ip address: {input}");
+                return;
+            }
+
+            BlockToRemoteIp(address);
+
+
+        }
+
         private void ShowSubscriptionMenu()
         {
             Console.Clear();
             WriteLineToConsole("Subscription Menu:");
-            WriteLineToConsole("1) All events");
-            WriteLineToConsole("2) Back to Main Menu");
+            WriteLineToConsole("1) Show events");
+            WriteLineToConsole("2) Get subscribtions");
+            WriteLineToConsole("3) Back to Main Menu");
             Console.Write("\nSelect an option: ");
 
             switch (Console.ReadLine())
@@ -89,6 +143,11 @@ namespace poc_WFP_disable
                     ShowSubscriptionMenu();
                     break;
                 case "2":
+                    PrintSubscriptions();
+                    PauseBeforeContinuing();
+                    ShowSubscriptionMenu();
+                    break;
+                case "3":
                     return; // Go back to Main Menu
                 default:
                     WriteLineToConsole("Invalid option. Please try again.");

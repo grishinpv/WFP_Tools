@@ -27,9 +27,11 @@ namespace Wfp
             IntPtr subscriptionHandle = IntPtr.Zero;
 
             FWPM_CONNECTION_ENUM_TEMPLATE0_ enumTemplate = new FWPM_CONNECTION_ENUM_TEMPLATE0_();
-            FWPM_CONNECTION_SUBSCRIPTION0_ subscription = new FWPM_CONNECTION_SUBSCRIPTION0_();
-            subscription.enumTemplate = enumTemplate;
-            subscription.sessionKey = session_key;
+            FWPM_CONNECTION_SUBSCRIPTION0_ subscription = new FWPM_CONNECTION_SUBSCRIPTION0_()
+            {
+                enumTemplate = enumTemplate,
+                sessionKey = session_key != IntPtr.Zero ? Marshal.PtrToStructure<Guid>(session_key) : Guid.Empty,
+            };
 
             code = FwpmConnectionSubscribe0(
                 handleManager.engineHandle, //GetEngineHandle(),
@@ -52,6 +54,11 @@ namespace Wfp
         public void UnsubscribeConnectionChanges()
         {
             Unsibscribe<FWPM_CONNECTION0_>(handleManager.connectionObj.subscription_changes);
+        }
+
+        public IEnumerable<FWPM_SESSION0_> GetConnectionSubscribtions()
+        {
+            return GetSubscribtions<FWPM_CONNECTION0_>();
         }
 
     }

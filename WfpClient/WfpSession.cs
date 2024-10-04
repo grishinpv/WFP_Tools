@@ -17,6 +17,7 @@ namespace Wfp
             return GetItems<FWPM_SESSION0_>(nameFilter);
         }
 
+
         
     }
 }

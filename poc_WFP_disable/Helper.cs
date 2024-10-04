@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -15,6 +16,26 @@ namespace poc_WFP_disable
 {
     internal static class Helper
     {
+
+        public enum WFP_OBJECTS
+        {
+            SESSION = 0,
+            PROVIDER,
+            CALLOUT,
+            CONNECTION,
+            FILTER,
+            SUBLAYER
+        }
+
+        public static int ConvertIPv4AddressToInt(IPAddress address)
+        {
+            byte[] ip_bytes = address.GetAddressBytes();
+            if (BitConverter.IsLittleEndian)
+            {
+                Array.Reverse(ip_bytes);
+            }
+            return (int)(BitConverter.ToUInt32(ip_bytes, 0));
+        }
 
         public static List<Dictionary<string, string>> GetDacl(IntPtr dacl)
         {

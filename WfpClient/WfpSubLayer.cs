@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Win32Helper;
 using static NativeAPI.WfpNativeAPI;
 
 namespace Wfp
@@ -41,7 +42,7 @@ namespace Wfp
             FWPM_SUBLAYER_SUBSCRIPTION0_ subscription = new FWPM_SUBLAYER_SUBSCRIPTION0_
             {
                 enumTemplate = enumTemplate,
-                sessionKey = session_key,
+                sessionKey = session_key != IntPtr.Zero ? Marshal.PtrToStructure<Guid>(session_key) : Guid.Empty,
                 flags = FirewallSubscriptionFlags.FWPM_SUBSCRIPTION_FLAG_NOTIFY_ON_DELETE | FirewallSubscriptionFlags.FWPM_SUBSCRIPTION_FLAG_NOTIFY_ON_ADD
             };
 
@@ -67,6 +68,43 @@ namespace Wfp
             Unsibscribe<FWPM_SUBLAYER0_>(handleManager.sublayerObj.subscription_changes);
         }
 
+        public IEnumerable<FWPM_SESSION0_> GetSublayerSubscribtions()
+        {
+            return GetSubscribtions<FWPM_SUBLAYER0_>();
+        }
+
+
+        public Guid CreateSublayer(
+                Guid guid,
+                string name = "WFP Tool Sublayer",
+                string description = "WFP Toll Sublayer for test purpuses")
+        {
+            uint code;
+
+            FWPM_SUBLAYER0_ fwpFilterSubLayer = new FWPM_SUBLAYER0_
+            {
+                subLayerKey = guid,  // my guid
+                displayData = new FWPM_DISPLAY_DATA0_
+                {
+                    name = name,
+                    description = description
+                },
+                flags = FWPM_SUBLAYER_FLAG_.NONE,
+                weight = 0
+            };
+
+            if (GetSubLayers().Where(item => item.subLayerKey.Equals(fwpFilterSubLayer.subLayerKey)).Count() == 0)
+            {
+                code = FwpmSubLayerAdd0(handleManager.engineHandle, ref fwpFilterSubLayer, IntPtr.Zero);
+                if (code != 0)
+                {
+                    throw new NativeException(nameof(FwpmFilterAdd0), code);
+                }
+            }
+
+            return guid;
+        }
+        
 
     }
 }
