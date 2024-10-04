@@ -182,3 +182,4 @@ obj/
 # cproj.user
 *.csproj.user
 
+/WfpClient/logs
